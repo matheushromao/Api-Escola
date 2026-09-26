@@ -13,7 +13,7 @@ class AlunoController{
 
     async findMany(request, response){
       try{
-        let {page, pageSize} = request.query;
+        let {page, pageSize, orderBy, order} = request.query;
         page ||= 1;
         pageSize ||= 10;
         orderBy ||= "id";
@@ -38,7 +38,7 @@ class AlunoController{
     async update(request, response){
       try{
         const {id} = request.params;
-        const aluno = AlunoService.update(id, request.body);
+        const aluno = await AlunoService.update(id, request.body);
         return response.status(200).json({aluno});
       }catch(e){
         return response.status(e.statusCode || 500).json({error: e.message});

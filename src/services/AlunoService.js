@@ -20,7 +20,7 @@ class AlunoService {
     return novoAluno;
   }
 
-  async findMany(page, pageSize) {
+  async findMany(page, pageSize, orderBy, order) {
     page = Number(page);
     pageSize = Number(pageSize);
     if (!page || page < 1 || !pageSize || pageSize < 1) {
