@@ -103,5 +103,13 @@ class AlunoService {
       throw e;
     }
   }
+
+  async delete(id){
+    id = this.converterId(id);
+    await this.findUnique(id);
+    await prisma.aluno.delete({
+      where: { id }
+    });
+  }
 }
 module.exports = new AlunoService();

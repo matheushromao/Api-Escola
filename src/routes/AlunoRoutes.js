@@ -8,5 +8,6 @@ router.get("/", AlunoController.findMany);
 router.get("/:id", AlunoController.findUnique);
 router.post("/", ValidarAluno, AlunoController.create);
 router.patch("/:id", AlunoController.update);
+router.delete("/:id", AlunoController.delete);
 
 module.exports = router;

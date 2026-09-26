@@ -44,6 +44,16 @@ class AlunoController{
         return response.status(e.statusCode || 500).json({error: e.message});
       }
     }
+
+    async delete(request,response){
+      try{
+        const {id} = request.params;
+        await AlunoService.delete(id);
+        return response.status(204).send();
+      }catch(e){
+        return response.status(e.statusCode || 500).json({error: e.message});
+      }
+    }
 }
 
 module.exports = new AlunoController;
