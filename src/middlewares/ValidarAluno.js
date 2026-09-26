@@ -1,4 +1,3 @@
-const { response } = require("express");
 const AlunoSchema = require("../schemas/AlunoSchema");
 
 const ValidarAluno = (request, response, next) => {
@@ -10,7 +9,7 @@ const ValidarAluno = (request, response, next) => {
                 message: e.message
             }
         });
-        return response.status(200).json({error: errors});
+        return response.status(400).json({error: errors});
     }
     request.body = result.data;
     next();

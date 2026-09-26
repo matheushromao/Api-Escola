@@ -3,8 +3,12 @@ const AlunoService = require("../services/AlunoService");
 class AlunoController{
 
     async create(request, response){
+      try{
         const aluno = await AlunoService.create(request.body);
         return response.status(201).json({aluno});
+      }catch(e){
+        return response.status(e.statusCode).json({error: e.message})
+      }
     }
 
     async findMany(request, response){
