@@ -7,5 +7,6 @@ const router = express.Router();
 router.get("/", AlunoController.findMany);
 router.get("/:id", AlunoController.findUnique);
 router.post("/", ValidarAluno, AlunoController.create);
+router.patch("/:id", AlunoController.update);
 
 module.exports = router;

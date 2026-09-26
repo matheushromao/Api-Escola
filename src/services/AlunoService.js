@@ -2,7 +2,10 @@ const prisma = require("../database/prisma");
 const AlunoInvalidoError = require("../errors/AlunoInvalidoError");
 const PaginacaoInvalidaError = require("../errors/PaginacaoInvalidaError");
 const OrdenacaoInvalidaError = require("../errors/OrdenacaoInvalidaError");
-const AlunoNaoEncontrado = require("../errors/AlunoNaoEncontrado");
+const AlunoNaoEncontradoError = require("../errors/AlunoNaoEncontradoError");
+const EmailDuplicadoError = require("../errors/EmailDuplicadoError");
+const AlunoSchema = require("../schemas/AlunoSchema");
+const { EMPTY_PATH } = require("zod/v3");
 
 const CAMPO_ORDENAVEIS = ["id", "nome", "email", "createAt", "updateAt"];
 const ORDENACAO = ["asc", "desc"];
@@ -57,9 +60,48 @@ class AlunoService {
       where: { id }
     });
     if(!aluno){
-      throw new AlunoNaoEncontrado;
+      throw new AlunoNaoEncontradoError();
     }
     return aluno;
+  }
+
+  async update(id, dados){
+    id = this.converterId(id);
+
+    // Dados inválidos: reaproveita AlunoInvalidoError (400),
+    // problema igual ao create (dados errados)
+    const result = AlunoSchema.partial().safeParse(dados ?? {});
+    if(!result.success){
+      throw new AlunoInvalidoError(result.error.issues[0].message);
+    }
+    const data = result.data;
+    if(Object.keys(data).length === 0){
+      throw new AlunoInvalidoError("Envie algum nome ou e-mail pelo menos para ser atualizado.")
+    }
+
+    // Aluno não encontrado: reaproveita a verificação do findUnique (404)
+    await this.findUnique(id);
+
+     // Email duplicado: exceção própria (409)
+    if(data.email){
+      const dono = await prisma.aluno.findUnique({where: {email: data.email} });
+      if (dono && dono.id !== id){
+        throw new EmailDuplicadoError();
+      }
+    }
+
+    try{
+      const alunoAtualizado = await prisma.aluno.update({
+        where: { id },
+        data
+      });
+      return alunoAtualizado;
+    }catch(e){
+      if(e.code === "P2002"){
+        throw new EmailDuplicadoError();
+      }
+      throw e;
+    }
   }
 }
 module.exports = new AlunoService();
